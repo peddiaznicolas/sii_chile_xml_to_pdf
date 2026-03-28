@@ -6,13 +6,28 @@ import json
 
 from sii_xml_pdf.parser import parse_xml
 from sii_xml_pdf.renderer import render_pdf, render_bhe_pdf_from_xml
+from sii_xml_pdf.image_processor import process_image_to_data
 
 
 def convert_file(xml_path, out=None, css=None, translate=False):
     xml_path = pathlib.Path(xml_path).resolve()
     if not xml_path.exists():
-        raise SystemExit(f"❌ No existe el XML: {xml_path}")
+        raise SystemExit(f"❌ No existe el archivo: {xml_path}")
 
+    # Verificar si es una imagen (PNG, JPG, etc.)
+    image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff'}
+    if xml_path.suffix.lower() in image_extensions:
+        # Procesar imagen con OCR
+        print(f"📷 Procesando imagen con OCR: {xml_path.name}")
+        result = process_image_to_data(str(xml_path))
+        
+        if not result.get('success'):
+            raise SystemExit(f"❌ Error procesando imagen: {result.get('error', 'Error desconocido')}")
+        
+        print(f"✅ Datos extraídos: {result['data']}")
+        print(f"📝 Texto crudo:\n{result['raw_text'][:500]}...")
+        return
+    
     # Leer el contenido del XML para detectar tipo
     xml_content = xml_path.read_bytes()
     xml_str = xml_content.decode('utf-8', errors='ignore')

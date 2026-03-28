@@ -9,6 +9,7 @@ src/sii_xml_pdf/barcode.py
 src/sii_xml_pdf/bhe_parser.py
 src/sii_xml_pdf/cli.py
 src/sii_xml_pdf/formatting.py
+src/sii_xml_pdf/image_processor.py
 src/sii_xml_pdf/models.py
 src/sii_xml_pdf/ns.py
 src/sii_xml_pdf/parser.py
