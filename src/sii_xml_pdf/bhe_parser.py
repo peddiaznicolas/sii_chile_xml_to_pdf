@@ -137,18 +137,38 @@ def parse_bhe_xml(xml: Union[str, bytes, Path], translate_to_en: bool = False) -
     numero_resolucion = _text(root.find("numeroResolucion"))
     fecha_resolucion = _text(root.find("fechaResolucion"))
     
-    # Extraer el TED (Timbre Electrónico) si existe para generar el código de barras
-    timbre_xml = None
-    ted_el = root.find("TED")
-    if ted_el is not None:
-        timbre_xml = ET.tostring(ted_el, encoding='unicode')
-    
-    # Montos
+    # Montos (necesarios antes de construir el TED)
     total_honorarios = _int_text(root.find("totalHonorarios"))
     liquido_honorarios = _int_text(root.find("liquidoHonorarios"))
     impuesto_honorarios = _int_text(root.find("impuestoHonorarios"))
     porcentaje_impuesto = _int_text(root.find("porcentajeImpuesto"))
     retiene_emisor = _text(root.find("retieneEmisor"))
+    
+    # Extraer el TED (Timbre Electrónico) si existe para generar el código de barras
+    timbre_xml = None
+    ted_el = root.find("TED")
+    if ted_el is not None:
+        timbre_xml = ET.tostring(ted_el, encoding='unicode')
+    else:
+        # Construir un TED artificial con los datos de la BHE para el código de barras
+        # Formato típico del TED para BHE
+        rut_emisor_raw = rut_emisor.strip().replace(".", "").replace("-", "")
+        fechor_gen_val = fechor_gen or ""
+        
+        # Crear estructura TED básica para BHE
+        ted_data = f"""<TED version="1.0">
+<DD>
+<RE>{rut_emisor_raw}</RE>
+<TD>66</TD>
+<F>{fechor_gen_val.split()[0] if fechor_gen_val else ''}</F>
+<RR>{rut_receptor.strip().replace(".", "").replace("-", "")}</RR>
+<RZ>{nombre_receptor}</RZ>
+<Mnt>{liquido_honorarios}</Mnt>
+<NroResol>{numero_resolucion or '0'}</NroResol>
+<FchResol>{fecha_resolucion or ''}</FchResol>
+</DD>
+</TED>"""
+        timbre_xml = ted_data
     
     # Items
     items: List[BHEItem] = []
