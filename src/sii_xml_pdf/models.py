@@ -91,6 +91,13 @@ class BHEData(BaseModel):
     fechor_env: str
     codigo_alfa: str
     
+    # Datos de resolución (para código de barras)
+    numero_resolucion: str = ""
+    fecha_resolucion: str = ""
+    
+    # Timbre XML (para generar código de barras)
+    timbre_xml: Optional[str] = None
+    
     # Montos
     total_honorarios: int
     liquido_honorarios: int

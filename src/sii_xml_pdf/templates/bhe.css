@@ -178,3 +178,39 @@ html, body {
   font-size: 12pt;
 }
 #monto_total_final .label { margin-right: 10px; }
+
+/* ===== Código de Barras ===== */
+#barcode_section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4mm 0;
+  padding: 4mm;
+  border: 1px solid #000;
+  break-inside: avoid;
+}
+.barcode-container {
+  flex: 0 0 auto;
+  max-width: 60%;
+}
+.barcode-container svg {
+  width: 100%;
+  height: auto;
+  max-height: 80px;
+}
+.barcode-info {
+  flex: 1;
+  padding-left: 4mm;
+  font-size: 9pt;
+}
+.barcode-info .info-row {
+  display: flex;
+  padding: 2px 0;
+}
+.barcode-info .label {
+  width: 40%;
+  font-weight: bold;
+}
+.barcode-info .val {
+  width: 60%;
+}

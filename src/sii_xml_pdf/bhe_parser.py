@@ -133,6 +133,16 @@ def parse_bhe_xml(xml: Union[str, bytes, Path], translate_to_en: bool = False) -
     fechor_env = _text(root.find("FechorEnv"))
     codigo_alfa = _text(root.find("Codigoalfa"))
     
+    # Datos de resolución para código de barras
+    numero_resolucion = _text(root.find("numeroResolucion"))
+    fecha_resolucion = _text(root.find("fechaResolucion"))
+    
+    # Extraer el TED (Timbre Electrónico) si existe para generar el código de barras
+    timbre_xml = None
+    ted_el = root.find("TED")
+    if ted_el is not None:
+        timbre_xml = ET.tostring(ted_el, encoding='unicode')
+    
     # Montos
     total_honorarios = _int_text(root.find("totalHonorarios"))
     liquido_honorarios = _int_text(root.find("liquidoHonorarios"))
@@ -177,6 +187,9 @@ def parse_bhe_xml(xml: Union[str, bytes, Path], translate_to_en: bool = False) -
         fechor_gen=fechor_gen,
         fechor_env=fechor_env,
         codigo_alfa=codigo_alfa,
+        numero_resolucion=numero_resolucion,
+        fecha_resolucion=fecha_resolucion,
+        timbre_xml=timbre_xml,
         total_honorarios=total_honorarios,
         liquido_honorarios=liquido_honorarios,
         impuesto_honorarios=impuesto_honorarios,
