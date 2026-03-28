@@ -77,12 +77,30 @@
         {{ "NET TO PAY" if d.traducir_al_ingles else "SON" }} 
         <span class="light">{{ monto_liquido_palabras }}</span>
       </div>
-      <div id="bottom_area">
-        <div id="info_block">
+      
+      <!-- CÓDIGO DE BARRAS PDF417 -->
+      {% if barcode_svg %}
+      <div id="barcode_section">
+        <div class="barcode-container">
+          {{ barcode_svg|safe }}
+        </div>
+        <div class="barcode-info">
+          <div class="info-row">
+            <span class="label">{{ "Authorization:" if d.traducir_al_ingles else "Autorización:" }}</span>
+            <span class="val">{{ d.numero_resolucion }} - {{ d.fecha_resolucion[:4] }}-{{ d.fecha_resolucion[4:6] }}-{{ d.fecha_resolucion[6:] }}</span>
+          </div>
+          {% if d.codigo_alfa %}
           <div class="info-row">
             <span class="label">{{ "Alpha Code:" if d.traducir_al_ingles else "Código Alfa:" }}</span>
             <span class="val">{{ d.codigo_alfa }}</span>
           </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      
+      <div id="bottom_area">
+        <div id="info_block">
           <div class="info-row">
             <span class="label">{{ "Generation:" if d.traducir_al_ingles else "Generación:" }}</span>
             <span class="val">{{ d.fechor_gen }}</span>

@@ -53,9 +53,11 @@ def render_html(dte: DTEData) -> str:
 
 def render_bhe_html(bhe: BHEData) -> str:
     tmpl = env.get_template("bhe.html")
+    barcode_svg = pdf417_svg_from_ted(bhe.timbre_xml) if bhe.timbre_xml else None
     ctx = {
         "d": bhe,
         "monto_liquido_palabras": num2words(bhe.liquido_honorarios, lang="es").upper(),
+        "barcode_svg": barcode_svg,
     }
     return tmpl.render(**ctx)
 
