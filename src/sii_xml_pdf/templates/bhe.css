@@ -1,0 +1,180 @@
+@charset "UTF-8";
+
+/* ===== Página ===== */
+@page {
+  size: Letter;
+  margin: 1.5cm;
+  @bottom-right {
+    color: #a9a;
+    content: "Página " counter(page) " de " counter(pages);
+    font-family: "Inter", "Noto Sans", "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
+    font-size: 9pt;
+  }
+}
+
+/* Reset + Base */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  height: auto;
+  display: block;
+  margin: 0;
+  font-family: "Inter", "Noto Sans", "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.6;
+  color: #000;
+}
+
+/* Contenido que se estira */
+.content {
+  display: flex;
+  flex-direction: column;
+  min-height: 19cm;
+}
+
+/* Espaciador flexible para empujar totales al fondo */
+.spacer {
+  flex: 1;
+}
+
+/* ===== Utilidades ===== */
+.muted { color: #666; }
+.strong { font-weight: 700; }
+.light { font-weight: 400; }
+
+/* ===== Cabecera ===== */
+.header {
+  display: grid;
+  grid-template-columns: minmax(90mm, 1fr) 70mm;
+  align-items: start;
+  margin-bottom: 4mm;
+}
+#info_emisor { margin: 0; }
+#informations {
+  border: 2px solid #d32f2f;
+  padding: 1em;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
+#informations dt { margin: 0; }
+
+/* ===== Receptor ===== */
+#receiver_data {
+  width: 100%;
+  border: 1px solid #000;
+  font-size: 10pt;
+  margin: 4mm 0;
+  padding: 4px 8px;
+  break-inside: avoid;
+}
+#receiver_data table.receiver { width: 100%; border-collapse: collapse; line-height: 1.2; }
+#receiver_data table.receiver td { padding: 2px 4px; vertical-align: top; }
+#receiver_data .col-title { width: 12%; font-weight: bold; }
+#receiver_data .col-data { width: 38%; }
+#receiver_data .col-title.right { width: 18%; font-weight: bold; }
+#receiver_data .col-data.right { width: 32%; }
+
+/* ===== Ítems ===== */
+#item_table {
+  display: block;
+  width: 100%;
+  margin: 6mm 0;
+}
+#item_table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  line-height: 1.1;
+  font-size: 9.25pt;
+}
+#item_table thead { display: table-header-group; }
+#item_table tr { page-break-inside: avoid; }
+#item_table th, #item_table td {
+  padding: 2px 2px;
+  font-size: 9.25pt;
+  word-break: break-word;
+}
+#item_table th {
+  border-bottom: 0.2mm solid #a9a;
+  font-weight: 600;
+  text-align: center;
+}
+#item_table td { text-align: center; }
+#item_table td.left { text-align: left; }
+#item_table td.right { text-align: right; }
+
+/* Anchos columnas */
+#item_table th:nth-child(1), #item_table td:nth-child(1) { width: 8%; }
+#item_table th:nth-child(2), #item_table td:nth-child(2) {
+  width: 62%;
+  text-align: left;
+  white-space: normal;
+  hyphens: auto;
+}
+#item_table th:nth-child(3), #item_table td:nth-child(3) { width: 30%; }
+
+/* ===== Totales + Info ===== */
+#total {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-top: 4mm;
+  width: 100%;
+}
+#total_bar {
+  font-weight: bold;
+  border: 1px solid #000;
+  height: 0.7cm;
+  font-size: 0.4cm;
+  line-height: 0.7cm;
+  padding: 0 0.4cm;
+}
+#bottom_area {
+  display: flex;
+  width: 100%;
+  margin-top: 4mm;
+  break-inside: avoid;
+}
+#info_block { 
+  width: 50%; 
+  padding-right: 4mm;
+  font-size: 9pt;
+}
+#info_block .info-row {
+  display: flex;
+  padding: 2px 0;
+}
+#info_block .label {
+  width: 40%;
+  font-weight: bold;
+}
+#info_block .val {
+  width: 60%;
+}
+
+#totals_block {
+  width: 50%;
+  margin-left: auto;
+  display: flex;
+  font-size: 10pt;
+}
+#totals_block .tot-col { width: 50%; }
+#totals_block .row { display: flex; padding: 4px; }
+#totals_block .row span {
+  width: 50%;
+  display: inline-block;
+  border-bottom: 1px solid #000;
+}
+#totals_block .row.empty span { border-bottom: none; }
+#totals_block .row .val { text-align: right; }
+
+/* ===== Monto Total Final ===== */
+#monto_total_final {
+  margin-top: 2mm;
+  text-align: right;
+  font-weight: bold;
+  font-size: 12pt;
+}
+#monto_total_final .label { margin-right: 10px; }
