@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ d.tipo_documento }} {{ d.numero_boleta }}</title>
+    <meta name="description" content="Boleta de Honorarios Electrónica SII" />
+    <link rel="stylesheet" href="bhe.css" />
+  </head>
+  <body>
+    <div class="content">
+      <!-- CABECERA -->
+      <div class="header">
+        <div id="info_emisor">
+          <dt class="strong">{{ "Professional Services and IT Consultant" if d.traducir_al_ingles else "SERVICIOS PROFESIONALES Y CONSULTOR DE INFORMATICA" }}</dt>
+          {% if d.actividad_economica %}<dt>{{ d.actividad_economica }}</dt>{% endif %}
+          {% if d.domicilio_emisor %}<dt>{{ d.domicilio_emisor }}</dt>{% endif %}
+          <dt>
+            {% if d.comuna_emisor %}{{ d.comuna_emisor }}{% endif %}
+          </dt>
+          {% if d.telefono_emisor and d.telefono_emisor != "0" %}<dt>Tel: {{ d.telefono_emisor }}</dt>{% endif %}
+        </div>
+        <dl id="informations">
+          <dt>R.U.T.: {{ d.rut_emisor }}</dt>
+          <dt>{{ "Electronic Fee Receipt" if d.traducir_al_ingles else "Boleta de Honorarios Electrónica" }}</dt>
+          <dt>Nº: {{ d.numero_boleta }}</dt>
+          <dt>{{ d.fecha_boleta[:4] }}-{{ d.fecha_boleta[4:6] }}-{{ d.fecha_boleta[6:] }}</dt>
+        </dl>
+      </div>
+
+      <!-- RECEPTOR -->
+      <div id="receiver_data">
+        <table class="receiver">
+          <tr>
+            <td class="col-title">{{ "Name:" if d.traducir_al_ingles else "Nombre:" }}</td>
+            <td class="col-data">{{ d.nombre_receptor or '' }}</td>
+            <td class="col-title right">{{ "Address:" if d.traducir_al_ingles else "Domicilio:" }}</td>
+            <td class="col-data right">{{ d.domicilio_receptor or '' }}</td>
+          </tr>
+          <tr>
+            <td class="col-title">R.U.T.:</td>
+            <td class="col-data">{{ d.rut_receptor or '' }}</td>
+            <td class="col-title right">{{ "Commune:" if d.traducir_al_ingles else "Comuna:" }}</td>
+            <td class="col-data right">{{ d.comuna_receptor or '' }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- ÍTEMS -->
+      <div id="item_table">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ "No." if d.traducir_al_ingles else "Nro." }}</th>
+              <th>{{ "Description" if d.traducir_al_ingles else "Descripción" }}</th>
+              <th>{{ "Service Value" if d.traducir_al_ingles else "Valor Servicio" }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in d.items %}
+            <tr>
+              <td class="right">{{ it.numero_linea }}</td>
+              <td class="left wrap">{{ it.descripcion }}</td>
+              <td class="right">{{ it.valor_servicio|clp }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empujador -->
+      <div class="spacer"></div>
+    </div>
+
+    <!-- FOOTER / TOTALES -->
+    <div id="total">
+      <div id="total_bar">
+        {{ "NET TO PAY" if d.traducir_al_ingles else "SON" }} 
+        <span class="light">{{ monto_liquido_palabras }}</span>
+      </div>
+      <div id="bottom_area">
+        <div id="info_block">
+          <div class="info-row">
+            <span class="label">{{ "Alpha Code:" if d.traducir_al_ingles else "Código Alfa:" }}</span>
+            <span class="val">{{ d.codigo_alfa }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">{{ "Generation:" if d.traducir_al_ingles else "Generación:" }}</span>
+            <span class="val">{{ d.fechor_gen }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">{{ "Sending:" if d.traducir_al_ingles else "Envío:" }}</span>
+            <span class="val">{{ d.fechor_env }}</span>
+          </div>
+        </div>
+        <div id="totals_block">
+          <div class="tot-col">
+            <div class="row">
+              <span>{{ "Total Fees:" if d.traducir_al_ingles else "Total Honorarios:" }}</span>
+              <span class="val">{{ d.total_honorarios|clp }}</span>
+            </div>
+            <div class="row">
+              <span>{{ "Tax:" if d.traducir_al_ingles else "Impuesto:" }}</span>
+              <span class="val">{{ d.impuesto_honorarios|clp }}</span>
+            </div>
+            {% if d.retiene_emisor == "S" %}
+            <div class="row">
+              <span>{{ "Withheld by Issuer" if d.traducir_al_ingles else "Retiene Emisor" }}:</span>
+              <span class="val">{{ "Yes" if d.traducir_al_ingles else "Sí" }}</span>
+            </div>
+            {% endif %}
+          </div>
+          <div class="tot-col">
+            <div class="row empty"></div>
+            <div class="row">
+              <span>{{ "Tax Rate:" if d.traducir_al_ingles else "% Impuesto:" }}</span>
+              <span class="val">{{ d.porcentaje_impuesto }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="monto_total_final">
+        <span class="label">{{ "Net to Pay:" if d.traducir_al_ingles else "Líquido a Pagar:" }}</span>
+        <span class="val">{{ d.liquido_honorarios|clp }}</span>
+      </div>
+    </div>
+  </body>
+</html>

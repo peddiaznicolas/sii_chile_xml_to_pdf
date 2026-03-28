@@ -57,3 +57,49 @@ class DTEData(BaseModel):
     items: List[Item]
     referencias: List[Referencia]
     impuestos: List[Impuesto]
+
+
+class BHEItem(BaseModel):
+    numero_linea: int
+    descripcion: str
+    valor_servicio: int
+
+
+class BHEData(BaseModel):
+    """Datos para Boleta de Honorarios Electrónica"""
+    # Emisor
+    rut_emisor: str
+    dv_emisor: str
+    nombre_emisor: str
+    actividad_economica: str
+    domicilio_emisor: str
+    comuna_emisor: str
+    telefono_emisor: str
+    
+    # Receptor
+    rut_receptor: str
+    dv_receptor: str
+    nombre_receptor: str
+    domicilio_receptor: str
+    comuna_receptor: str
+    
+    # Boleta
+    numero_boleta: str
+    fecha_boleta: str
+    tipo_documento: str
+    fechor_gen: str
+    fechor_env: str
+    codigo_alfa: str
+    
+    # Montos
+    total_honorarios: int
+    liquido_honorarios: int
+    impuesto_honorarios: int
+    porcentaje_impuesto: int
+    retiene_emisor: str
+    
+    # Items
+    items: List[BHEItem]
+    
+    # Traducción
+    traducir_al_ingles: bool = False

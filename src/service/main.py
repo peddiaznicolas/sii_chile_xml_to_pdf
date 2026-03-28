@@ -6,7 +6,7 @@ from redis import Redis
 from rq import Queue
 
 # importa tu función de conversión
-from sii_xml_pdf.renderer import render_pdf_from_xml
+from sii_xml_pdf.renderer import render_pdf_from_xml, render_bhe_pdf_from_xml
 from .jobs import process_zip_and_send  
 
 API_TOKEN = os.getenv("API_TOKEN", "change_me")
@@ -32,7 +32,8 @@ def healthz():
 
 @app.post("/render")
 async def render(authorization: str = Header(None),
-                 file: UploadFile = File(...)):
+                 file: UploadFile = File(...),
+                 translate: bool = Form(False)):
     # Autenticación
     check_auth(authorization)
 
@@ -43,7 +44,15 @@ async def render(authorization: str = Header(None),
 
     # Generar PDF en memoria
     try:
-        pdf_bytes = render_pdf_from_xml(data)
+        # Detectar tipo de XML y convertir apropiadamente
+        xml_str = data.decode('utf-8', errors='ignore')
+        if '<datos>' in xml_str or '<rutEmisor>' in xml_str:
+            # Es una Boleta de Honorarios Electrónica
+            pdf_bytes = render_bhe_pdf_from_xml(data, translate_to_en=translate)
+        else:
+            # Es un DTE tradicional
+            pdf_bytes = render_pdf_from_xml(data)
+        
         if not pdf_bytes.startswith(b"%PDF"):
             raise RuntimeError("Invalid PDF generated")
         return Response(pdf_bytes, media_type="application/pdf")

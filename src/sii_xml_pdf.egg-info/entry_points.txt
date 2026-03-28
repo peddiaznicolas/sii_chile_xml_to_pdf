@@ -1,0 +1,2 @@
+[console_scripts]
+sii-xml-pdf = sii_xml_pdf.cli:main

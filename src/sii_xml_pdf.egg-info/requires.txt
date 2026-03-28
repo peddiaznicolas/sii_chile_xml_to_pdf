@@ -1,0 +1,15 @@
+jinja2
+weasyprint
+pandas
+num2words
+pdf417
+pydantic
+
+[service]
+fastapi
+uvicorn[standard]
+python-multipart
+redis
+rq
+fastapi-mail
+gunicorn

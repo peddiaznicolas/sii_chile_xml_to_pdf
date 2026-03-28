@@ -5,26 +5,44 @@ import pandas as pd
 import json
 
 from sii_xml_pdf.parser import parse_xml
-from sii_xml_pdf.renderer import render_pdf
+from sii_xml_pdf.renderer import render_pdf, render_bhe_pdf_from_xml
 
 
-def convert_file(xml_path, out=None, css=None):
+def convert_file(xml_path, out=None, css=None, translate=False):
     xml_path = pathlib.Path(xml_path).resolve()
     if not xml_path.exists():
         raise SystemExit(f"❌ No existe el XML: {xml_path}")
 
-    dte = parse_xml(str(xml_path))
-    pdf_bytes = render_pdf(dte, css_path=css)
+    # Leer el contenido del XML para detectar tipo
+    xml_content = xml_path.read_bytes()
+    xml_str = xml_content.decode('utf-8', errors='ignore')
+    
+    # Detectar si es BHE o DTE tradicional
+    if '<datos>' in xml_str or '<rutEmisor>' in xml_str:
+        # Es una Boleta de Honorarios Electrónica
+        pdf_bytes = render_bhe_pdf_from_xml(xml_content, translate_to_en=translate, css_path=css)
+        dte = None  # No tenemos objeto DTE para el nombre
+    else:
+        # Es un DTE tradicional
+        dte = parse_xml(str(xml_path))
+        pdf_bytes = render_pdf(dte, css_path=css)
 
     # Construir ruta de salida
     if out is None:
-        out_path = pathlib.Path(
-            "output/pdf") / f"{dte.fecha_emision.replace('-', '')} {dte.tipo_dte_abreviatura} {dte.razon_social.title().replace('.', '')} {dte.numero_factura}.pdf"
+        if dte:
+            out_path = pathlib.Path(
+                "output/pdf") / f"{dte.fecha_emision.replace('-', '')} {dte.tipo_dte_abreviatura} {dte.razon_social.title().replace('.', '')} {dte.numero_factura}.pdf"
+        else:
+            # Para BHE, usar nombre genérico
+            out_path = pathlib.Path("output/pdf") / f"bhe_{xml_path.stem}.pdf"
     else:
         out_candidate = pathlib.Path(out)
         if out_candidate.is_dir() or str(out).endswith("/"):
-            out_path = out_candidate / \
-                f"{dte.fecha_emision.replace('-', '')} {dte.tipo_dte_abreviatura} {dte.razon_social.title().replace('.', '')} {dte.numero_factura}.pdf"
+            if dte:
+                out_path = out_candidate / \
+                    f"{dte.fecha_emision.replace('-', '')} {dte.tipo_dte_abreviatura} {dte.razon_social.title().replace('.', '')} {dte.numero_factura}.pdf"
+            else:
+                out_path = out_candidate / f"bhe_{xml_path.stem}.pdf"
         else:
             out_path = out_candidate
 
@@ -35,14 +53,14 @@ def convert_file(xml_path, out=None, css=None):
     print(f"✅ PDF generado: {out_path}")
 
 
-def convert_folder(folder, out=None, css=None):
+def convert_folder(folder, out=None, css=None, translate=False):
     folder = pathlib.Path(folder).resolve()
     if not folder.exists():
         raise SystemExit(f"❌ No existe la carpeta: {folder}")
 
     for xml_file in folder.glob("*.xml"):
         try:
-            convert_file(xml_file, out=out, css=css)
+            convert_file(xml_file, out=out, css=css, translate=translate)
         except Exception as e:
             print(
                 f"⚠️ Error convirtiendo {xml_file.name}: {e}", file=sys.stderr)
@@ -97,11 +115,14 @@ def main():
     # convert
     ap_convert = subparsers.add_parser(
         "convert", help="Convierte un XML a PDF")
-    ap_convert.add_argument("xml", help="Ruta al XML DTE")
+    ap_convert.add_argument("xml", help="Ruta al XML DTE o BHE")
     ap_convert.add_argument(
         "-o", "--out", help="Ruta de salida (archivo .pdf o directorio)")
     ap_convert.add_argument(
-        "--css", help="Ruta a invoice.css (opcional)", default=None)
+        "--css", help="Ruta a invoice.css o bhe.css (opcional)", default=None)
+    ap_convert.add_argument(
+        "--translate", action="store_true", 
+        help="Traducir contenido al inglés (solo para BHE)")
 
     # convert-folder
     ap_folder = subparsers.add_parser(
@@ -109,7 +130,10 @@ def main():
     ap_folder.add_argument("folder", help="Carpeta con XMLs")
     ap_folder.add_argument("-o", "--out", help="Directorio de salida")
     ap_folder.add_argument(
-        "--css", help="Ruta a invoice.css (opcional)", default=None)
+        "--css", help="Ruta a invoice.css o bhe.css (opcional)", default=None)
+    ap_folder.add_argument(
+        "--translate", action="store_true", 
+        help="Traducir contenido al inglés (solo para BHE)")
 
     # extract-excel
     ap_excel = subparsers.add_parser(
@@ -121,9 +145,9 @@ def main():
     args = ap.parse_args()
 
     if args.command == "convert":
-        convert_file(args.xml, out=args.out, css=args.css)
+        convert_file(args.xml, out=args.out, css=args.css, translate=args.translate)
     elif args.command == "convert-folder":
-        convert_folder(args.folder, out=args.out, css=args.css)
+        convert_folder(args.folder, out=args.out, css=args.css, translate=args.translate)
     elif args.command == "extract-excel":
         extract_excel(args.folder, out=args.out)
     else:
